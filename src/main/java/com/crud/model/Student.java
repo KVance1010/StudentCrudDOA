@@ -9,7 +9,6 @@ public class Student {
 	private Date DOB;
 	
 	public Student(int rollnum, String studname, Date DOB) {
-		super();
 		this.rollnum = rollnum;
 		this.studname = studname;
 		this.DOB = DOB;

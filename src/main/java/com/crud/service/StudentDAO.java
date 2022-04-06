@@ -1,11 +1,15 @@
 package com.crud.service;
 
+//import java.io.PrintWriter;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Date;
+import java.sql.Statement;
+import java.sql.Types;
 
 import com.crud.model.Student;
 
@@ -22,7 +26,7 @@ public class StudentDAO {
 			// This tells where the database is located
 			String url = "jdbc:mysql://localhost:3306/cred";
 			String username = "root";
-			String password = "OZuzz&FA^qkfHKJkU9u=8v4=eS+Jt/8%";
+			String password = "OZuzzFA^qkfHKJkU9u=8v4=eS+Jt/8%";
 
 			// Step 2: Database information //DriverManager is used to control jdbc drivers
 			con = DriverManager.getConnection(url, username, password);
@@ -117,20 +121,65 @@ public class StudentDAO {
 	}
 
 	public int getStudentIdDelete(int rollNum) {
-        int results=0;
+		int results = 0;
 		try {
 			Connection con = getConnection();
-			
+
 			PreparedStatement ps = con.prepareStatement("DELETE FROM studentdetails WHERE rollno=?");
 			ps.setInt(1, rollNum);
 			results = ps.executeUpdate();
-			
+
 			con.close();
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return results;
+	}
+
+	public String getStudentDOB(int rollnum) {
+		Date date = null;
+		String name = null;
+		try {
+			Connection con = getConnection();
+
+			CallableStatement stmt = con.prepareCall("{call getstudentDOB(?,?, ?)}");
+			stmt.setInt(1, rollnum);
+			stmt.registerOutParameter(2, Types.DATE);
+			stmt.registerOutParameter(3, Types.VARCHAR);
+			stmt.execute();
+
+			date = stmt.getDate(2);
+			name = stmt.getString(3);
+			con.close();
+
+		} catch (Exception e) {
+
+		}
+
+		return date + " " + name;
+	}
+
+	public ArrayList<Student> getStudentView() {
+		ResultSet rs = null;
+		ArrayList<Student> list = new ArrayList<>();
+		try {
+			// 2) Create Con Connection
+			Connection con = getConnection();
+
+			CallableStatement stmt = con.prepareCall("{call getstudentDOB3()}"); 
+
+			rs = stmt.executeQuery();
+			while (rs.next()) {
+
+				list.add(new Student(rs.getInt(1), rs.getString(2), rs.getDate(3)));
+			}
+			con.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return list;
 	}
 
 }
